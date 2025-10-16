@@ -1,0 +1,155 @@
+/* NeuralSync Cyberpunk Styles */
+
+.outer-shadow {
+    --outer-shadow: 0 0 20px rgba(0, 255, 136, 0.3), 0 0 40px rgba(0, 255, 136, 0.1);
+    box-shadow: var(--outer-shadow);
+    transition: all 0.3s ease;
+}
+
+.outer-shadow:hover {
+    --outer-shadow: 0 0 30px rgba(0, 255, 136, 0.5), 0 0 60px rgba(0, 255, 136, 0.2);
+    box-shadow: var(--outer-shadow);
+    transform: translateY(-2px);
+}
+
+.inner-shadow {
+    --inner-shadow: inset 0 0 20px rgba(0, 255, 136, 0.1), inset 0 0 40px rgba(0, 255, 136, 0.05);
+    box-shadow: var(--inner-shadow);
+}
+
+/* Neural Glow Effects */
+.neural-glow {
+    position: relative;
+    overflow: hidden;
+}
+
+.neural-glow::before {
+    content: '';
+    position: absolute;
+    top: -2px;
+    left: -2px;
+    right: -2px;
+    bottom: -2px;
+    background: linear-gradient(45deg, #00ff88, #00d4ff, #ff0080, #00ff88);
+    background-size: 400% 400%;
+    border-radius: inherit;
+    z-index: -1;
+    animation: neuralPulse 3s ease-in-out infinite;
+}
+
+@keyframes neuralPulse {
+    0%, 100% { background-position: 0% 50%; }
+    50% { background-position: 100% 50%; }
+}
+
+/* Cyberpunk Button Styles */
+.cyber-button {
+    background: linear-gradient(45deg, #0a0a0a, #1a1a2e);
+    border: 2px solid #00ff88;
+    color: #00ff88;
+    padding: 12px 24px;
+    border-radius: 8px;
+    font-family: 'Orbitron', monospace;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    position: relative;
+    overflow: hidden;
+}
+
+.cyber-button:hover {
+    background: linear-gradient(45deg, #00ff88, #00d4ff);
+    color: #000;
+    box-shadow: 0 0 20px rgba(0, 255, 136, 0.5);
+    transform: translateY(-2px);
+}
+
+.cyber-button::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: -100%;
+    width: 100%;
+    height: 100%;
+    background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.2), transparent);
+    transition: left 0.5s;
+}
+
+.cyber-button:hover::before {
+    left: 100%;
+}
+
+/* Neural Data Stream */
+.data-stream {
+    position: relative;
+    overflow: hidden;
+}
+
+.data-stream::after {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: -100%;
+    width: 100%;
+    height: 100%;
+    background: linear-gradient(90deg, transparent, rgba(0, 255, 136, 0.1), transparent);
+    animation: dataFlow 2s linear infinite;
+}
+
+@keyframes dataFlow {
+    0% { left: -100%; }
+    100% { left: 100%; }
+}
+
+/* Cyberpunk Scrollbar */
+::-webkit-scrollbar {
+    width: 8px;
+}
+
+::-webkit-scrollbar-track {
+    background: #0a0a0a;
+    border-radius: 4px;
+}
+
+::-webkit-scrollbar-thumb {
+    background: linear-gradient(45deg, #00ff88, #00d4ff);
+    border-radius: 4px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+    background: linear-gradient(45deg, #00d4ff, #ff0080);
+}
+
+/* Neural Network Status Indicator */
+.neural-status {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    padding: 8px 16px;
+    background: rgba(0, 0, 0, 0.8);
+    border: 1px solid #00ff88;
+    border-radius: 20px;
+    font-family: 'Orbitron', monospace;
+    font-size: 0.9rem;
+    color: #00ff88;
+}
+
+.neural-status.active {
+    animation: neuralPulse 2s ease-in-out infinite;
+}
+
+.neural-status::before {
+    content: '';
+    width: 8px;
+    height: 8px;
+    background: #00ff88;
+    border-radius: 50%;
+    animation: blink 1s ease-in-out infinite;
+}
+
+@keyframes blink {
+    0%, 50% { opacity: 1; }
+    51%, 100% { opacity: 0.3; }
+}

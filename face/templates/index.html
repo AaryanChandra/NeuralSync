@@ -1,0 +1,566 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>NeuralSync - AI Emotion Music Engine</title>
+  
+  <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700;900&family=Rajdhani:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+  <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+  <link type="text/css" href="{{ url_for('static', filename='style.css') }}" rel="stylesheet" />
+  
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    body {
+      font-family: 'Rajdhani', sans-serif;
+      background: linear-gradient(135deg, #0a0a0a 0%, #1a1a2e 50%, #16213e 100%);
+      color: #00ff88;
+      overflow-x: hidden;
+      min-height: 100vh;
+    }
+
+    .cyber-grid {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background-image: 
+        linear-gradient(rgba(0, 255, 136, 0.03) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(0, 255, 136, 0.03) 1px, transparent 1px);
+      background-size: 50px 50px;
+      pointer-events: none;
+      z-index: 1;
+    }
+
+    .container {
+      position: relative;
+      z-index: 2;
+      max-width: 1400px;
+      margin: 0 auto;
+      padding: 20px;
+    }
+
+    .header {
+      text-align: center;
+      margin-bottom: 40px;
+      position: relative;
+    }
+
+    .main-title {
+      font-family: 'Orbitron', monospace;
+      font-size: 3.5rem;
+      font-weight: 900;
+      background: linear-gradient(45deg, #00ff88, #00d4ff, #ff0080);
+      background-size: 200% 200%;
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+      animation: gradientShift 3s ease-in-out infinite;
+      text-shadow: 0 0 30px rgba(0, 255, 136, 0.5);
+      margin-bottom: 10px;
+    }
+
+    .subtitle {
+      font-size: 1.2rem;
+      color: #00d4ff;
+      font-weight: 300;
+      letter-spacing: 2px;
+      text-transform: uppercase;
+    }
+
+    .main-content {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 40px;
+      margin-bottom: 40px;
+    }
+
+    .panel {
+      background: rgba(0, 0, 0, 0.7);
+      border: 2px solid #00ff88;
+      border-radius: 20px;
+      padding: 30px;
+      backdrop-filter: blur(10px);
+      box-shadow: 
+        0 0 50px rgba(0, 255, 136, 0.2),
+        inset 0 0 50px rgba(0, 255, 136, 0.05);
+      position: relative;
+      overflow: hidden;
+    }
+
+    .panel::before {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: -100%;
+      width: 100%;
+      height: 100%;
+      background: linear-gradient(90deg, transparent, rgba(0, 255, 136, 0.1), transparent);
+      animation: scan 3s linear infinite;
+    }
+
+    .panel-title {
+      font-family: 'Orbitron', monospace;
+      font-size: 1.8rem;
+      color: #00ff88;
+      margin-bottom: 20px;
+      text-align: center;
+      position: relative;
+      z-index: 3;
+    }
+
+    .video-container {
+      position: relative;
+      border-radius: 15px;
+      overflow: hidden;
+      box-shadow: 0 0 30px rgba(0, 255, 136, 0.3);
+    }
+
+    .video-feed {
+      width: 100%;
+      height: auto;
+      display: block;
+      border-radius: 15px;
+    }
+
+    .video-overlay {
+      position: absolute;
+      top: 10px;
+      left: 10px;
+      background: rgba(0, 0, 0, 0.8);
+      color: #00ff88;
+      padding: 10px 15px;
+      border-radius: 8px;
+      font-family: 'Orbitron', monospace;
+      font-size: 0.9rem;
+      border: 1px solid #00ff88;
+    }
+
+    .recommendations-panel {
+      background: rgba(0, 0, 0, 0.7);
+      border: 2px solid #00d4ff;
+      border-radius: 20px;
+      padding: 30px;
+      backdrop-filter: blur(10px);
+      box-shadow: 
+        0 0 50px rgba(0, 212, 255, 0.2),
+        inset 0 0 50px rgba(0, 212, 255, 0.05);
+      position: relative;
+      overflow: hidden;
+    }
+
+    .recommendations-panel::before {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: -100%;
+      width: 100%;
+      height: 100%;
+      background: linear-gradient(90deg, transparent, rgba(0, 212, 255, 0.1), transparent);
+      animation: scan 3s linear infinite reverse;
+    }
+
+    .recommendations-title {
+      font-family: 'Orbitron', monospace;
+      font-size: 1.8rem;
+      color: #00d4ff;
+      margin-bottom: 20px;
+      text-align: center;
+      position: relative;
+      z-index: 3;
+    }
+
+    .music-table {
+      width: 100%;
+      border-collapse: collapse;
+      margin-top: 20px;
+      position: relative;
+      z-index: 3;
+    }
+
+    .music-table th {
+      background: linear-gradient(45deg, #00d4ff, #0099cc);
+      color: #000;
+      padding: 15px;
+      text-align: left;
+      font-family: 'Orbitron', monospace;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 1px;
+      border: none;
+    }
+
+    .music-table td {
+      padding: 12px 15px;
+      border-bottom: 1px solid rgba(0, 212, 255, 0.2);
+      color: #ffffff;
+      font-weight: 400;
+    }
+
+    .music-table tr:hover {
+      background: rgba(0, 212, 255, 0.1);
+      transition: background 0.3s ease;
+    }
+
+    .status-indicator {
+      position: fixed;
+      top: 20px;
+      right: 20px;
+      background: rgba(0, 0, 0, 0.8);
+      border: 2px solid #00ff88;
+      border-radius: 10px;
+      padding: 10px 20px;
+      font-family: 'Orbitron', monospace;
+      font-size: 0.9rem;
+      color: #00ff88;
+      z-index: 1000;
+    }
+
+    .pulse {
+      animation: pulse 2s infinite;
+    }
+
+    @keyframes gradientShift {
+      0%, 100% { background-position: 0% 50%; }
+      50% { background-position: 100% 50%; }
+    }
+
+    @keyframes scan {
+      0% { left: -100%; }
+      100% { left: 100%; }
+    }
+
+    @keyframes pulse {
+      0%, 100% { opacity: 1; }
+      50% { opacity: 0.5; }
+    }
+
+    .loading-spinner {
+      display: inline-block;
+      width: 20px;
+      height: 20px;
+      border: 3px solid rgba(0, 255, 136, 0.3);
+      border-radius: 50%;
+      border-top-color: #00ff88;
+      animation: spin 1s ease-in-out infinite;
+    }
+
+    @keyframes spin {
+      to { transform: rotate(360deg); }
+    }
+
+    @media (max-width: 768px) {
+      .main-content {
+        grid-template-columns: 1fr;
+        gap: 20px;
+      }
+      
+      .main-title {
+        font-size: 2.5rem;
+      }
+      
+      .panel, .recommendations-panel {
+        padding: 20px;
+      }
+    }
+  </style>
+</head>
+
+<body>
+  <div class="cyber-grid"></div>
+  
+  <div class="container">
+    <div class="header">
+      <h1 class="main-title">NeuralSync</h1>
+      <p class="subtitle">AI-Powered Emotion Music Engine</p>
+    </div>
+
+    <div class="status-indicator pulse">
+      <i class="fas fa-brain"></i> Neural Network Active
+    </div>
+
+    <div class="main-content">
+      <div class="panel">
+        <h2 class="panel-title">
+          <i class="fas fa-eye"></i> Emotion Detection Matrix
+        </h2>
+        <div class="video-container">
+          <img class="video-feed" id="bg" src="{{ url_for('video_feed') }}" alt="Live Emotion Detection" />
+          <div class="video-overlay">
+            <i class="fas fa-video"></i> Live Feed Active
+          </div>
+        </div>
+      </div>
+
+      <div class="recommendations-panel">
+        <h2 class="recommendations-title">
+          <i class="fas fa-music"></i> Neural Recommendations
+        </h2>
+        <div id="PlayerArea" style="margin-top:10px;">
+          <div id="playerControls" style="display:flex; gap:10px; flex-wrap:wrap; justify-content:center;"></div>
+          <div style="margin-top:10px; border-radius:12px; overflow:hidden; box-shadow: 0 0 20px rgba(0, 212, 255, 0.25); padding:10px; background: rgba(0,0,0,0.4);">
+            <div id="nowPlaying" style="font-family:'Orbitron', monospace; color:#00d4ff; text-align:center; margin-bottom:6px;"></div>
+            <audio id="audioPlayer" controls preload="none" style="width:100%"></audio>
+          </div>
+        </div>
+        <div id="ResultArea">
+          <div style="text-align: center; color: #666; padding: 40px;">
+            <div class="loading-spinner"></div>
+            <p style="margin-top: 15px;">Initializing neural pathways...</p>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</body>
+
+<script src="//ajax.googleapis.com/ajax/libs/jquery/1.9.1/jquery.min.js"></script>
+<script type="text/javascript">
+// Neural Network Data Processing
+let emotionHistory = [];
+let currentEmotion = 'Neutral';
+let lastDataHash = '';
+let frozenEmotion = null;           // Emotion we are locked to until user confirms change
+let pendingEmotion = null;          // Candidate emotion detected by backend
+let pendingEmotionCount = 0;        // Stability counter for candidate emotion
+const STABLE_POLLS_REQUIRED = 6;    // ~3s at 500ms polling
+let playerQueue = [];               // Top 3 queries for the embedded player
+let activeTrackIdx = 0;
+
+// Constantly Update Neural Recommendations (throttled, diffed, and gated by frozenEmotion)
+setInterval(function() {
+    $.getJSON('/t', function(data) {
+        if (data && data.length > 0) {
+            const newHash = JSON.stringify(data);
+            if (!frozenEmotion || (pendingEmotion === frozenEmotion)) {
+                if (newHash !== lastDataHash) {
+                    CreateNeuralTable(data);
+                    lastDataHash = newHash;
+                }
+            }
+            updateEmotionStatus();
+        }
+    }).fail(function() {
+        console.log('Neural network connection lost...');
+    });
+}, 500);
+
+function CreateNeuralTable(data) {
+    // Clear neural processing area
+    $("#ResultArea").html("");
+    
+    // Create neural table with cyberpunk styling
+    var table = $("<table class='music-table' id='NeuralTable'></table>").appendTo("#ResultArea");
+    
+    // Create neural header
+    var rowHeader = $("<tr></tr>").appendTo(table);
+    $("<th></th>").html("<i class='fas fa-music'></i> Track").appendTo(rowHeader);
+    $("<th></th>").html("<i class='fas fa-compact-disc'></i> Album").appendTo(rowHeader);
+    $("<th></th>").html("<i class='fas fa-user'></i> Artist").appendTo(rowHeader);
+    
+    // Process neural data
+    $.each(data, function (i, value) {
+        var row = $("<tr></tr>").appendTo(table);
+        
+        // Add neural glow effect to rows
+        row.css({
+            'transition': 'all 0.3s ease',
+            'position': 'relative'
+        });
+        
+        // Create cells with enhanced styling
+        var nameCell = $("<td></td>").text(value.Name).appendTo(row);
+        var albumCell = $("<td></td>").text(value.Album).appendTo(row);
+        var artistCell = $("<td></td>").text(value.Artist).appendTo(row);
+        
+        // Add neural processing indicators
+        if (i < 3) {
+            nameCell.prepend("<i class='fas fa-star' style='color: #00ff88; margin-right: 8px;'></i>");
+        }
+    });
+    
+    // Subtle fade-in without layout shift
+    table.css({ 'opacity': '0' }).animate({ 'opacity': '1' }, 150);
+
+    // Prepare player queue for top 3 items (Name+Artist)
+    playerQueue = [];
+    for (let i = 0; i < Math.min(3, data.length); i++) {
+        const v = data[i];
+        playerQueue.push({ name: v.Name, artist: v.Artist });
+    }
+    buildPlayerControls();
+    if (playerQueue.length > 0 && (activeTrackIdx >= playerQueue.length)) {
+        activeTrackIdx = 0;
+    }
+    if (playerQueue.length > 0 && !document.getElementById('audioPlayer').src) {
+        playTrack(0);
+    }
+}
+
+function updateEmotionStatus() {
+    // Fetch current emotion from backend, apply stability and confirmation gating
+    $.getJSON('/emotion', function(res) {
+        if (res && res.emotion) {
+            const serverEmotion = res.emotion;
+
+            if (!frozenEmotion) {
+                frozenEmotion = serverEmotion;
+                pendingEmotion = serverEmotion;
+                pendingEmotionCount = 0;
+            }
+
+            if (serverEmotion !== frozenEmotion) {
+                if (pendingEmotion !== serverEmotion) {
+                    pendingEmotion = serverEmotion;
+                    pendingEmotionCount = 1;
+                } else {
+                    pendingEmotionCount += 1;
+                }
+
+                if (pendingEmotionCount >= STABLE_POLLS_REQUIRED) {
+                    showEmotionChangePrompt(pendingEmotion);
+                    pendingEmotionCount = 0;
+                }
+            } else {
+                pendingEmotion = frozenEmotion;
+                pendingEmotionCount = 0;
+            }
+
+            currentEmotion = frozenEmotion;
+        }
+
+        const detected = (res && res.faceDetected) ? true : false;
+        const statusText = detected
+            ? `<i class="fas fa-brain"></i> Detected: ${currentEmotion}`
+            : `<i class="fas fa-brain"></i> No face detected`;
+        $('.status-indicator').html(statusText);
+    }).fail(function() {
+        const statusText = `<i class="fas fa-brain"></i> Neural Network Active`;
+        $('.status-indicator').html(statusText);
+    });
+}
+
+function showEmotionChangePrompt(nextEmotion) {
+    if ($('.emotion-modal').length) return;
+    const modal = $(`
+      <div class="emotion-modal" style="position:fixed; inset:0; background:rgba(0,0,0,0.6); z-index:2000; display:flex; align-items:center; justify-content:center;">
+        <div style="background:#0b0f1a; border:2px solid #00ff88; border-radius:12px; padding:20px; max-width:420px; width:90%; color:#00ff88; box-shadow: 0 0 20px rgba(0,255,136,0.3);">
+          <div style="font-family:'Orbitron', monospace; font-size:1.1rem; margin-bottom:10px;">
+            Emotion change detected
+          </div>
+          <div style="color:#bfffe5; margin-bottom:16px;">Switch recommendations to <b>${nextEmotion}</b>?</div>
+          <div style="display:flex; gap:10px; justify-content:flex-end;">
+            <button id="declineChange" class="cyber-button">Stay</button>
+            <button id="confirmChange" class="cyber-button">Switch</button>
+          </div>
+        </div>
+      </div>
+    `);
+    $('body').append(modal);
+    $('#declineChange').on('click', function() {
+        $('.emotion-modal').remove();
+    });
+    $('#confirmChange').on('click', function() {
+        frozenEmotion = nextEmotion;
+        lastDataHash = '';
+        document.getElementById('ytPlayer').src = '';
+        activeTrackIdx = 0;
+        $('.emotion-modal').remove();
+    });
+}
+
+function buildPlayerControls() {
+    const controls = $('#playerControls');
+    controls.empty();
+    for (let i = 0; i < playerQueue.length; i++) {
+        const btn = $(`<button class="cyber-button">Top ${i+1}</button>`);
+        (function(idx){
+            btn.on('click', function(){ playTrack(idx); });
+        })(i);
+        controls.append(btn);
+    }
+}
+
+function playTrack(index) {
+    if (index < 0 || index >= playerQueue.length) return;
+    activeTrackIdx = index;
+    const audio = document.getElementById('audioPlayer');
+    const now = document.getElementById('nowPlaying');
+    const meta = playerQueue[index];
+    now.textContent = `${meta.name} — ${meta.artist}`;
+    fetchItunesPreviewUrl(`${meta.name} ${meta.artist}`)
+      .then(function(previewUrl){
+        if (previewUrl) {
+            audio.src = previewUrl;
+            audio.play().catch(function(){});
+        } else {
+            audio.removeAttribute('src');
+            now.textContent = `${meta.name} — ${meta.artist} (Preview unavailable)`;
+        }
+      }).catch(function(){
+        audio.removeAttribute('src');
+        now.textContent = `${meta.name} — ${meta.artist} (Preview unavailable)`;
+      });
+}
+
+function fetchItunesPreviewUrl(query) {
+    const url = `https://itunes.apple.com/search?media=music&limit=1&term=${encodeURIComponent(query)}`;
+    return fetch(url)
+      .then(function(res){ return res.json(); })
+      .then(function(json){
+        if (json && json.results && json.results.length > 0) {
+            return json.results[0].previewUrl || '';
+        }
+        return '';
+      })
+}
+
+// Add cyberpunk sound effects (optional)
+function playNeuralSound() {
+    // Create audio context for neural sounds
+    const audioContext = new (window.AudioContext || window.webkitAudioContext)();
+    const oscillator = audioContext.createOscillator();
+    const gainNode = audioContext.createGain();
+    
+    oscillator.connect(gainNode);
+    gainNode.connect(audioContext.destination);
+    
+    oscillator.frequency.setValueAtTime(800, audioContext.currentTime);
+    oscillator.frequency.exponentialRampToValueAtTime(200, audioContext.currentTime + 0.1);
+    
+    gainNode.gain.setValueAtTime(0.1, audioContext.currentTime);
+    gainNode.gain.exponentialRampToValueAtTime(0.01, audioContext.currentTime + 0.1);
+    
+    oscillator.start(audioContext.currentTime);
+    oscillator.stop(audioContext.currentTime + 0.1);
+}
+
+// Initialize neural network
+$(document).ready(function() {
+    console.log('NeuralSync AI Engine initialized...');
+    
+    // Add loading animation
+    setTimeout(function() {
+        $('.loading-spinner').fadeOut();
+    }, 2000);
+    
+    // Add cyberpunk grid animation
+    setInterval(function() {
+        $('.cyber-grid').css('opacity', '0.3');
+        setTimeout(function() {
+            $('.cyber-grid').css('opacity', '0.1');
+        }, 1000);
+    }, 3000);
+    // Initial status render
+    updateEmotionStatus();
+});
+</script>
+
+</html>
