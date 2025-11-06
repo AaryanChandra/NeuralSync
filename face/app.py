@@ -6,6 +6,8 @@ from collections import deque
 from collections import Counter as Counter
 # FA jaaye maa chudane madarchod
 # FA ki maa ka bhosada
+# varanyas saali randi
+
 
 app = Flask(__name__)
 
