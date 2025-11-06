@@ -3,11 +3,7 @@ import gunicorn
 from camera import *
 import time
 from collections import deque
-from collections import Counter as Counter
-# FA jaaye maa chudane madarchod
-# FA ki maa ka bhosada
-# varanyas saali randi
-
+from collections import Counter as Counter\
 
 app = Flask(__name__)
 
