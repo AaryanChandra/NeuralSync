@@ -4,6 +4,7 @@ from camera import *
 import time
 from collections import deque
 from collections import Counter as Counter
+# FA jaaye maa chudane madarchod
 
 app = Flask(__name__)
 
